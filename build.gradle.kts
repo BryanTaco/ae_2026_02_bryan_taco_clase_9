@@ -4,6 +4,7 @@ plugins {
     kotlin("plugin.jpa") version "2.3.21"
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
+    id("jacoco")
 }
 
 group = "com.pucetec"
@@ -46,4 +47,29 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    classDirectories.setFrom(
+        fileTree("${layout.buildDirectory.get()}/classes/kotlin/main/com/pucetec/events/services")
+    )
+}
+
+tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom(
+        fileTree("${layout.buildDirectory.get()}/classes/kotlin/main/com/pucetec/events/services")
+    )
+    violationRules {
+        rule {
+            limit {
+                minimum = "1.0".toBigDecimal()
+            }
+        }
+    }
 }
